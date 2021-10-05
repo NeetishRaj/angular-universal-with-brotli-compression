@@ -15,8 +15,15 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-builders/custom-webpack:browser",
           "options": {
+            "customWebpackConfig": {
+              "path": "./extra-webpack.config.js",
+              "mergeRules": {
+                "externals": "replace"
+              }
+            },
+            "indexTransform": "./index-html-transform.js",
             "outputPath": "dist/browser",
             "index": "src/index.html",
             "main": "src/main.ts",

@@ -8,6 +8,8 @@ import { AppServerModule } from './src/main.server';
 import { APP_BASE_HREF } from '@angular/common';
 import { existsSync } from 'fs';
 
+import * as expressStaticGzip from "express-static-gzip";
+
 // The Express app is exported so that it can be used by serverless Functions.
 export function app() {
   const server = express();
@@ -27,9 +29,24 @@ export function app() {
     res.status(404).send('data requests are not yet supported');
   });
 
-  // Serve static files from /browser
+  //Serve static files from /browser
   server.get('*.*', express.static(distFolder, {
     maxAge: '1y'
+  }));
+
+  server.get('*.js*', function(req, res, next) {
+    req.url = req.url + '.br';
+    res.set('Content-Encoding', 'brotli');
+    res.set('Content-Type', 'text/javascript');
+    next();
+    console.log(req.url);
+  });
+  server.get('*.*', expressStaticGzip(distFolder, {
+    enableBrotli: true,
+    orderPreference: ['br', 'gz'],
+    // setHeaders: function (res: any, path: any) {
+    //    res.setHeader("Cache-Control", "public, max-age=31536000");
+    // }
   }));
 
   // All regular routes use the Universal engine
